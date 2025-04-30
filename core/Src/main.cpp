@@ -2,6 +2,7 @@
 
 #define LOG_LEVEL_LOCAL ESP_LOG_VERBOSE
 #include <esp_log.h>
+
 #define LOG_TAG "MAIN"
 
 static Main app;
@@ -9,6 +10,8 @@ static Main app;
 extern "C" void app_main(void)
 {
     ESP_ERROR_CHECK(esp_event_loop_create_default()); // Create the default event loop
+
+    ESP_ERROR_CHECK(nvs_flash_init()); // Initialize the NVS flash storage
     
     ESP_ERROR_CHECK(app.setup());
 

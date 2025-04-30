@@ -2,6 +2,8 @@
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
+#include <esp_event.h>
+#include <nvs_flash.h>
 
 #include "Gpio.h"
 
