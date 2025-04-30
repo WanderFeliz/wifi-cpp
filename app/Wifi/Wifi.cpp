@@ -4,7 +4,8 @@ namespace WIFI
 {
     char Wifi::mac_add_cstr[]{}; // MAC address string
 
-    std::atomic_bool Wifi::first_call{false}; // Flag to check if the constructor has been called before
+    std::mutex Wifi::first_call_mutx; // lock to prevent multiple threads from accessing the constructor at the same time
+    bool Wifi::first_call{false}; // Flag to check if the constructor has been called before
 
     esp_err_t Wifi::_get_mac(void)
     {

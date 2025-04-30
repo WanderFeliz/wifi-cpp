@@ -1,6 +1,6 @@
 #pragma once
 
-#include <atomic>
+#include <mutex>
 
 #include <esp_wifi.h>
 #include <esp_mac.h>
@@ -28,15 +28,18 @@ namespace WIFI
 
         Wifi(void)
         {
+            std::lock_guard<std::mutex> guard(first_call_mutx); // Lock the mutex to prevent
+            // multiple threads from accessing the constructor at the same time
+
             if (!first_call) // Check if the constructor has been called before
             {
                 if (ESP_OK != _get_mac()) esp_restart(); // Get the MAC address of the Wi-Fi module
                 first_call = true; // Set the flag to true to indicate that the constructor has been called
-            } // Constructor
+            }
             else
             {
                 ESP_LOGI(LOG_TAG, "Wifi constructor already called, skipping MAC address retrieval.");
-            } // Constructor
+            }
               
         } // Constructor
 
@@ -55,8 +58,10 @@ namespace WIFI
     private:
         void state_machine(void);     // State machine for the Wi-Fi module
         esp_err_t _get_mac(void);     // Get the MAC address of the Wi-Fi module
-        static char mac_add_cstr[13]; // MAC address string
+        static char mac_add_cstr[18]; // MAC address string
 
-        static std::atomic_bool first_call; // Flag to check if the constructor has been called before
+        static std::mutex first_call_mutx; // lock to prevent multiple threads from accessing the constructor at the same time
+        static bool first_call; // Flag to check if the constructor has been called before
+
     };
 } // namespace WIFI
