@@ -4,8 +4,21 @@ namespace WIFI
 {
     char Wifi::mac_add_cstr[]{}; // MAC address string
 
-    std::mutex Wifi::first_call_mutx; // lock to prevent multiple threads from accessing the constructor at the same time
-    bool Wifi::first_call{false}; // Flag to check if the constructor has been called before
+    std::mutex Wifi::init_mutx; // lock to prevent multiple threads from accessing the constructor at the same time
+
+    // Constructor
+    // It uses a mutex to ensure that only one instance of the class is created at a time
+    // Removed flag first_call and using get_mac() to check if the constructor has been called before
+    Wifi::Wifi(void)
+    {
+        std::lock_guard<std::mutex> guard(init_mutx); // guard the mutex
+
+        if (!get_mac()[0]) // check if the constructor has not been called before
+        {
+            if (ESP_OK != _get_mac())
+                esp_restart(); // restart the ESP32 if MAC address could not be retrieved
+        }
+    }
 
     esp_err_t Wifi::_get_mac(void)
     {

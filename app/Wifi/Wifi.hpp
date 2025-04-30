@@ -14,6 +14,8 @@ namespace WIFI
     class Wifi
     {
     public:
+        // Strongly typed enum for the state of the Wi-Fi module
+        // This enum is used to represent the different states of the Wi-Fi module
         enum class state_e
         {
             NOT_INITIALIZED,
@@ -26,27 +28,17 @@ namespace WIFI
             ERROR,
         };
 
-        Wifi(void)
-        {
-            std::lock_guard<std::mutex> guard(first_call_mutx); // Lock the mutex to prevent
-            // multiple threads from accessing the constructor at the same time
+        // Rule of five for the Wifi class
+        Wifi(void);               // Default constructor
+        ~Wifi() = default;                // Destructor
+        Wifi(const Wifi &) = default;            // Copy constructor
+        Wifi(Wifi &&) = default;             // Move constructor
+        Wifi &operator=(const Wifi &) = default; // Copy assignment operator
+        Wifi &operator=(Wifi &&) = default;  // Move assignment operator
 
-            if (!first_call) // Check if the constructor has been called before
-            {
-                if (ESP_OK != _get_mac()) esp_restart(); // Get the MAC address of the Wi-Fi module
-                first_call = true; // Set the flag to true to indicate that the constructor has been called
-            }
-            else
-            {
-                ESP_LOGI(LOG_TAG, "Wifi constructor already called, skipping MAC address retrieval.");
-            }
-              
-        } // Constructor
-
-
-        esp_err_t init(void);  // Initialize the Wi-Fi module + config
-        esp_err_t begin(void); // Start the Wi-Fi module, connect to the network
-        esp_err_t stop(void);  // Stop the Wi-Fi module
+        esp_err_t init(void);  // TODO Initialize the Wi-Fi module + config
+        esp_err_t begin(void); // TODO Start the Wi-Fi module, connect to the network
+        esp_err_t stop(void);  // TODO Stop the Wi-Fi module
 
         state_e get_state(void); // Get the current state of the Wi-Fi module
 
@@ -57,11 +49,12 @@ namespace WIFI
 
     private:
         void state_machine(void);     // State machine for the Wi-Fi module
+        state_e _state; // Current state of the Wi-Fi module
         esp_err_t _get_mac(void);     // Get the MAC address of the Wi-Fi module
         static char mac_add_cstr[18]; // MAC address string
 
-        static std::mutex first_call_mutx; // lock to prevent multiple threads from accessing the constructor at the same time
-        static bool first_call; // Flag to check if the constructor has been called before
+
+        static std::mutex init_mutx; // lock to prevent multiple threads from accessing the constructor at the same time
 
     };
 } // namespace WIFI
