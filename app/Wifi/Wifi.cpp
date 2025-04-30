@@ -2,6 +2,7 @@
 
 namespace WIFI
 {
+    Wifi::state_e Wifi::_state{state_e::NOT_INITIALIZED}; // Current state of the Wi-Fi module
     char Wifi::mac_add_cstr[]{}; // MAC address string
 
     std::mutex Wifi::init_mutx; // lock to prevent multiple threads from accessing the constructor at the same time

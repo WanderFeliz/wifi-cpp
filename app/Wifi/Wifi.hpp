@@ -42,18 +42,22 @@ namespace WIFI
 
         state_e get_state(void); // Get the current state of the Wi-Fi module
 
-        const char *get_mac(void)
+        constexpr static const char *get_mac(void)
         {
             return mac_add_cstr;
         }; // Get the MAC address of the Wi-Fi module
 
     private:
+
+        static esp_err_t _init(void); // Initialize the Wi-Fi module
+
         void state_machine(void);     // State machine for the Wi-Fi module
-        state_e _state; // Current state of the Wi-Fi module
+        static state_e _state; // Current state of the Wi-Fi module
+
+        // Private method to get the MAC address of the Wi-Fi module
         esp_err_t _get_mac(void);     // Get the MAC address of the Wi-Fi module
+        
         static char mac_add_cstr[18]; // MAC address string
-
-
         static std::mutex init_mutx; // lock to prevent multiple threads from accessing the constructor at the same time
 
     };
