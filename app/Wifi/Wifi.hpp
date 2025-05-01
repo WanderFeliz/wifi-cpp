@@ -1,6 +1,9 @@
 #pragma once
 
+#include <algorithm>
 #include <mutex>
+
+#include <cstring>
 
 #include <esp_wifi.h>
 #include <esp_mac.h>
@@ -13,6 +16,9 @@ namespace WIFI
 {
     class Wifi
     {
+        constexpr static const char* ssid{"MyWifiSsid"};
+        constexpr static const char* password{"MyWifiPassword"};
+
     public:
         // Strongly typed enum for the state of the Wi-Fi module
         // This enum is used to represent the different states of the Wi-Fi module
@@ -20,15 +26,16 @@ namespace WIFI
         {
             NOT_INITIALIZED,
             INITIALIZED,
-            WAITING_FOR_CREDENTIALS,
             READY_TO_CONNECT,
             CONNECTING,
+            WAITING_FOR_IP,
             CONNECTED,
             DISCONNECTED,
             ERROR,
         };
 
         // Rule of five for the Wifi class
+        /// Default constructor method
         Wifi(void);               // Default constructor
         ~Wifi() = default;                // Destructor
         Wifi(const Wifi &) = default;            // Copy constructor
@@ -36,11 +43,14 @@ namespace WIFI
         Wifi &operator=(const Wifi &) = default; // Copy assignment operator
         Wifi &operator=(Wifi &&) = default;  // Move assignment operator
 
-        esp_err_t init(void);  // TODO Initialize the Wi-Fi module + config
-        esp_err_t begin(void); // TODO Start the Wi-Fi module, connect to the network
+        /// @brief Initialization method for the Wifi instance
+        /// @param  None
+        /// @return esp_err base status depending on what happened in the initialization.
+        esp_err_t init(void);
+        esp_err_t begin(void);
         esp_err_t stop(void);  // TODO Stop the Wi-Fi module
 
-        state_e get_state(void); // Get the current state of the Wi-Fi module
+        constexpr const state_e& get_state(void) {return _state;}; // This is a const referrence just a constexpr wont work as the variable is created in runtime
 
         constexpr static const char *get_mac(void)
         {
@@ -49,16 +59,51 @@ namespace WIFI
 
     private:
 
+        static wifi_init_config_t wifi_init_config;
+        static wifi_config_t wifi_config;
         static esp_err_t _init(void); // Initialize the Wi-Fi module
 
         void state_machine(void);     // State machine for the Wi-Fi module
-        static state_e _state; // Current state of the Wi-Fi module
 
-        // Private method to get the MAC address of the Wi-Fi module
-        esp_err_t _get_mac(void);     // Get the MAC address of the Wi-Fi module
+        /**
+         * Wifi base event handler
+         */
+        static void event_handler(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data);
         
-        static char mac_add_cstr[18]; // MAC address string
-        static std::mutex init_mutx; // lock to prevent multiple threads from accessing the constructor at the same time
+        /**
+         * Conection specific event handler
+         */
+        static void wifi_event_handler(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data);
+        
+        /**
+         * IP event handler
+         */
+        static void ip_event_handler(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data);
+        
+        /// @brief // Current state of the Wi-Fi module
+        static state_e _state;
+
+        /// @brief Private method to get the MAC address of the Wi-Fi module
+        /// Get the MAC address of the Wi-Fi module
+        esp_err_t _get_mac(void);     
+        
+        /// @brief MAC address string
+        static char mac_add_cstr[18];
+        
+        /// @brief lock to prevent multiple threads from accessing the constructor at the same time
+        static std::mutex init_mutx;
+
+        /**
+         * lock to prevent multiple threads form accessing the connecting of the wifi at the same time 
+         * 
+         * */ 
+        static std::mutex connect_mutx;
+        
+        /**
+         * lock to prevent multiple threads form accessing the state of the wifi at the same time 
+         * 
+         * */ 
+        static std::mutex state_mutx;
 
     };
 } // namespace WIFI
