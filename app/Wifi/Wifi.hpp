@@ -10,14 +10,13 @@
 #define LOG_LEVEL_LOCAL ESP_LOG_VERBOSE
 #include <esp_log.h>
 
-#define LOG_TAG "WIFI"
-
 namespace WIFI
 {
     class Wifi
     {
-        constexpr static const char* ssid{"MyWifiSsid"};
-        constexpr static const char* password{"MyWifiPassword"};
+        constexpr static const char* _log_tag{"WIFI"};
+        constexpr static const char* ssid{"my_wifi"};
+        constexpr static const char* password{"my_password"};
 
     public:
         // Strongly typed enum for the state of the Wi-Fi module

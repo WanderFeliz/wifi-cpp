@@ -6,6 +6,7 @@
 #include <nvs_flash.h>
 
 #include "Gpio.hpp"
+#include "Wifi.hpp"
 
 
 class Main final
@@ -15,4 +16,5 @@ class Main final
         void loop(void);
 
         Gpio::GpioOutput led{GPIO_NUM_2}; // GPIO_NUM_2 is the pin number for the LED
+        WIFI::Wifi wifi{}; // Create an instance of the Wifi class
 };

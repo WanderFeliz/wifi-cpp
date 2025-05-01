@@ -28,6 +28,9 @@ esp_err_t Main::setup(void)
     esp_err_t status{ESP_OK};
 
     status |= led.init(); // Initialize the LED GPIO
+    status |= wifi.init(); // Initialize the Wi-Fi module
+
+    if (ESP_OK == status) status |= wifi.begin(); // Start the Wi-Fi module
 
     return status;
 }
